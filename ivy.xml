@@ -285,6 +285,7 @@
 
      <dependency org="org.apache.spark" name="spark-core_2.10" rev="1.0.0" conf="compile->default">
       <exclude org="org.eclipse.jetty.orbit"/>
+      <exclude org="com.google.guava"/>
     </dependency>
     <dependency org="org.scala-lang" name="scala-library" rev="2.10.3" conf="compile"/>
 

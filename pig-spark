@@ -67,7 +67,7 @@ if [ -z "$PIG_HOME" ]; then
     exit 1
 fi
 export PIG_HOME=$(pwd)
-export PIG_CLASSPATH=$PIG_HOME/build/ivy/lib/Pig/netty-3.6.6.Final.jar:$PIG_HOME/pig-withouthadoop.jar:$PIG_HOME/lib/spark/mesos-0.9.0.jar:$(find $PIG_HOME/build/ivy/lib/Pig/* -name '*.jar' -print | tr '\n' :)$HADOOP_CONF_DIR:$PIG_HOME/conf
+export PIG_CLASSPATH=$PIG_HOME/build/ivy/lib/Pig/netty-3.6.6.Final.jar:$PIG_HOME/pig-withouthadoop.jar:$PIG_HOME/lib/spark/mesos-0.9.0.jar:$HADOOP_CONF_DIR:$PIG_HOME/conf:$SPARK_HOME/assembly/target/scala-2.10/spark-assembly-1.0.0-hadoop2.2.0.jar
 export SPARK_JARS="$PIG_HOME/pig.jar"
 export SPARK_PIG_JAR=$PIG_HOME/pig.jar
 
