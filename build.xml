@@ -1568,42 +1568,42 @@
 
      <target name="ivy-compile" depends="ivy-resolve" description="Retrieve Ivy-managed artifacts for compile configuration">
        <ivy:retrieve settingsRef="${ant.project.name}.ivy.settings"
-                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" conf="compile"/>
+                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" type="jar,bundle" conf="compile"/>
        <ivy:cachepath pathid="compile.classpath" conf="compile"/>
      </target>
 
      <target name="ivy-test" depends="ivy-resolve" description="Retrieve Ivy-managed artifacts for test configuration">
        <ivy:retrieve settingsRef="${ant.project.name}.ivy.settings"
-                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" conf="test"/>
+                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" type="jar,bundle" conf="test"/>
      </target>
 
      <target name="ivy-javadoc" depends="ivy-resolve" description="Retrieve Ivy-managed artifacts for javadoc configuration">
        <ivy:retrieve settingsRef="${ant.project.name}.ivy.settings"
-                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" conf="javadoc"/>
+                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" type="jar,bundle" conf="javadoc"/>
        <ivy:cachepath pathid="javadoc.classpath" conf="javadoc"/>
      </target>
 
      <target name="ivy-releaseaudit" depends="ivy-resolve" description="Retrieve Ivy-managed artifacts for releaseaudit configuration">
        <ivy:retrieve settingsRef="${ant.project.name}.ivy.settings"
-                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" conf="releaseaudit"/>
+                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" type="jar,bundle" conf="releaseaudit"/>
        <ivy:cachepath pathid="releaseaudit.classpath" conf="releaseaudit"/>
      </target>
 
      <target name="ivy-checkstyle" depends="ivy-resolve" description="Retrieve Ivy-managed artifacts for checkstyle configuration">
        <ivy:retrieve settingsRef="${ant.project.name}.ivy.settings"
-                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" conf="checkstyle"/>
+                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" type="jar,bundle" conf="checkstyle"/>
        <ivy:cachepath pathid="checkstyle.classpath" conf="checkstyle"/>
      </target>
 
      <target name="ivy-buildJar" depends="ivy-resolve" description="Retrieve Ivy-managed artifacts for buildJar configuration">
        <ivy:retrieve settingsRef="${ant.project.name}.ivy.settings"
-                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" conf="buildJar"/>
+                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" type="jar,bundle" conf="buildJar"/>
        <ivy:cachepath pathid="buildJar.classpath" conf="buildJar"/>
      </target>
 
      <target name="ivy-jdiff" depends="ivy-resolve" description="Retrieve Ivy-managed artifacts for jdiff configuration">
        <ivy:retrieve settingsRef="${ant.project.name}.ivy.settings"
-                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" conf="jdiff"/>
+                 pattern="${build.ivy.lib.dir}/${ivy.artifact.retrieve.pattern}" type="jar,bundle" conf="jdiff"/>
        <ivy:cachepath pathid="jdiff.classpath" conf="jdiff"/>
      </target>
 

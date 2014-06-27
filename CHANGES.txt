@@ -713,7 +713,7 @@ PIG-2468: Speed up TestBuiltin (dvryaboy)
 
 PIG-2467: Speed up TestCommit (dvryaboy)
 
-PIG-2460: Use guava 11 instead of r06 (dvryaboy)
+PIG-2460: Use guava 14 instead of r06 (dvryaboy)
 
 PIG-2267: Make the name of the columns in schema optional (jcoveney via daijy)
 
