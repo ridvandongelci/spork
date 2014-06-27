@@ -38,7 +38,7 @@ public class DistinctConverter implements POConverter<Tuple, Tuple, PODistinct> 
 
         RDD<Tuple2<Tuple, Object>> rddPairs = rdd.map(TO_KEY_VALUE_FUNCTION, tuple2ClassManifest);
         PairRDDFunctions<Tuple, Object> pairRDDFunctions =
-                new PairRDDFunctions<Tuple, Object>(rddPairs, SparkUtil.getManifest(Tuple.class), SparkUtil.getManifest(Object.class));
+                new PairRDDFunctions<Tuple, Object>(rddPairs, SparkUtil.getManifest(Tuple.class), SparkUtil.getManifest(Object.class),null);
         int parallelism = SparkUtil.getParallelism(predecessors, poDistinct);
         return pairRDDFunctions.reduceByKey(MERGE_VALUES_FUNCTION, parallelism).map(TO_VALUE_FUNCTION, SparkUtil.getManifest(Tuple.class));
     }

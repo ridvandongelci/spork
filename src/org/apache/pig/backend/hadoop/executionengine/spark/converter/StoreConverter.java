@@ -50,7 +50,7 @@ public class StoreConverter implements POConverter<Tuple, Tuple2<Text, Tuple>, P
         // convert back to KV pairs
         RDD<Tuple2<Text, Tuple>> rddPairs = rdd.map(FROM_TUPLE_FUNCTION, SparkUtil.<Text, Tuple>getTuple2Manifest());
         PairRDDFunctions<Text, Tuple> pairRDDFunctions = new PairRDDFunctions<Text, Tuple>(rddPairs,
-                SparkUtil.getManifest(Text.class), SparkUtil.getManifest(Tuple.class));
+                SparkUtil.getManifest(Text.class), SparkUtil.getManifest(Tuple.class),null);
 
         JobConf storeJobConf = SparkUtil.newJobConf(pigContext);
         POStore poStore = configureStorer(storeJobConf, physicalOperator);
@@ -75,12 +75,12 @@ public class StoreConverter implements POConverter<Tuple, Tuple2<Text, Tuple>, P
         return poStore;
     }
 
-    private static class FromTupleFunction extends Function<Tuple, Tuple2<Text, Tuple>>
+    private static class FromTupleFunction extends AbstractFunction1<Tuple, Tuple2<Text, Tuple>>
             implements Serializable {
 
         private static Text EMPTY_TEXT = new Text();
 
-        public Tuple2<Text, Tuple> call(Tuple v1) {
+        public Tuple2<Text, Tuple> apply(Tuple v1) {
             return new Tuple2<Text, Tuple>(EMPTY_TEXT, v1);
         }
     }

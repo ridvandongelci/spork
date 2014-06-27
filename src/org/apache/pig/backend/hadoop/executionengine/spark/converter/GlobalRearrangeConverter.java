@@ -24,6 +24,7 @@ import scala.collection.JavaConversions;
 import scala.collection.Seq;
 //import scala.reflect.ClassManifest;
 import scala.reflect.ClassTag;
+import scala.runtime.AbstractFunction1;
 
 @SuppressWarnings({ "serial"})
 public class GlobalRearrangeConverter implements POConverter<Tuple, Tuple, POGlobalRearrange> {
@@ -79,10 +80,10 @@ public class GlobalRearrangeConverter implements POConverter<Tuple, Tuple, POGlo
         }
     }
 
-    private static class GetKeyFunction extends Function<Tuple, Object> implements Serializable {
+    private static class GetKeyFunction extends AbstractFunction1<Tuple, Object> implements Serializable {
 
         @Override
-        public Object call(Tuple t) {
+        public Object apply(Tuple t) {
             try {
                 LOG.debug("GetKeyFunction in "+t);
                 // see PigGenericMapReduce For the key
@@ -95,10 +96,10 @@ public class GlobalRearrangeConverter implements POConverter<Tuple, Tuple, POGlo
         }
     }
 
-    private static class GroupTupleFunction extends Function<Tuple2<Object, Seq<Tuple>>, Tuple> implements Serializable {
+    private static class GroupTupleFunction extends AbstractFunction1<Tuple2<Object, scala.collection.Iterable<Tuple>>, Tuple> implements Serializable {
 
         @Override
-        public Tuple call(Tuple2<Object, Seq<Tuple>> v1) {
+        public Tuple apply(Tuple2<Object, scala.collection.Iterable<Tuple>> v1) {
             try {
                 LOG.debug("GroupTupleFunction in "+v1);
                 Tuple tuple = tf.newTuple(2);
@@ -112,10 +113,10 @@ public class GlobalRearrangeConverter implements POConverter<Tuple, Tuple, POGlo
         }
     }
 
-    private static class ToKeyValueFunction extends Function<Tuple,Tuple2<Object, Tuple>> implements Serializable {
+    private static class ToKeyValueFunction extends AbstractFunction1<Tuple,Tuple2<Object, Tuple>> implements Serializable {
 
         @Override
-        public Tuple2<Object, Tuple> call(Tuple t) {
+        public Tuple2<Object, Tuple> apply(Tuple t) {
             try {
                 // (index, key, value)
                 LOG.debug("ToKeyValueFunction in "+t);
@@ -131,10 +132,10 @@ public class GlobalRearrangeConverter implements POConverter<Tuple, Tuple, POGlo
         }
     }
 
-    private static class ToGroupKeyValueFunction extends Function<Tuple2<Object,Seq<Seq<Tuple>>>,Tuple> implements Serializable {
+    private static class ToGroupKeyValueFunction extends AbstractFunction1<Tuple2<Object,Seq<Seq<Tuple>>>,Tuple> implements Serializable {
 
         @Override
-        public Tuple call(Tuple2<Object, Seq<Seq<Tuple>>> input) {
+        public Tuple apply(Tuple2<Object, Seq<Seq<Tuple>>> input) {
             try {
                 LOG.debug("ToGroupKeyValueFunction2 in "+input);
                 final Object key = input._1();

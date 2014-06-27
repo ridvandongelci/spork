@@ -273,6 +273,7 @@
         <path id="eclipse.classpath">
             <fileset dir="${ivy.lib.dir}">
                 <include name="**.*jar"/>
+            	<exclude name="hadoop-core-1.0.4.jar" if="isHadoop23"/>
             </fileset>
             <fileset dir="${lib.dir}">
                 <include name="**.*jar"/>
@@ -296,7 +297,7 @@
                 <source path="${src.shims.dir}"/>
                 <source path="${src.shims.test.dir}"/>
                 <source path="tutorial/src"/>
-                <source path="${test.src.dir}" excluding="e2e/pig/udfs/java/|resources/"/>
+                <source path="${test.src.dir}" excluding="e2e/pig/udfs/java/|perf/|resources/"/>
                 <output path="${build.dir.eclipse-main-classes}" />
                 <library pathref="eclipse.classpath" exported="true" />
                 <!--library pathref="classpath" exported="false"/-->

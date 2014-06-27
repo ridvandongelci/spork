@@ -8,11 +8,11 @@ import org.apache.pig.backend.hadoop.executionengine.physicalLayer.Result;
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POForEach;
 import org.apache.pig.backend.hadoop.executionengine.spark.SparkUtil;
 import org.apache.pig.data.Tuple;
+import org.apache.spark.rdd.RDD;
 
 import scala.collection.Iterator;
 import scala.collection.JavaConversions;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.rdd.RDD;
+import scala.runtime.AbstractFunction1;
 
 /**
  * Convert that is able to convert an RRD to another RRD using a POForEach
@@ -29,7 +29,7 @@ public class ForEachConverter implements POConverter<Tuple, Tuple, POForEach> {
         return rdd.mapPartitions(forEachFunction, true, SparkUtil.getManifest(Tuple.class));
     }
 
-    private static class ForEachFunction extends Function<Iterator<Tuple>, Iterator<Tuple>>
+    private static class ForEachFunction extends AbstractFunction1<Iterator<Tuple>, Iterator<Tuple>>
             implements Serializable {
 
         private POForEach poForEach;
@@ -38,7 +38,7 @@ public class ForEachConverter implements POConverter<Tuple, Tuple, POForEach> {
             this.poForEach = poForEach;
         }
 
-        public Iterator<Tuple> call(Iterator<Tuple> i) {
+        public Iterator<Tuple> apply(Iterator<Tuple> i) {
             final java.util.Iterator<Tuple> input = JavaConversions.asJavaIterator(i);
             Iterator<Tuple> output = JavaConversions.asScalaIterator(new POOutputConsumerIterator(input) {
                 protected void attach(Tuple tuple) {
