@@ -18,6 +18,7 @@
 package org.apache.pig.builtin;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,10 +33,12 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.BZip2Codec;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.GzipCodec;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.OutputFormat;
@@ -58,9 +61,11 @@ import org.apache.pig.StoreFunc;
 import org.apache.pig.StoreFuncInterface;
 import org.apache.pig.StoreMetadata;
 import org.apache.pig.backend.executionengine.ExecException;
+import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigInputFormat;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigSplit;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigTextInputFormat;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigTextOutputFormat;
+import org.apache.pig.backend.hadoop.executionengine.spark.SparkUtil;
 import org.apache.pig.bzip2r.Bzip2TextInputFormat;
 import org.apache.pig.data.DataByteArray;
 import org.apache.pig.data.Tuple;
@@ -72,6 +77,13 @@ import org.apache.pig.impl.util.StorageUtil;
 import org.apache.pig.impl.util.UDFContext;
 import org.apache.pig.impl.util.Utils;
 import org.apache.pig.parser.ParserException;
+import org.apache.pig.spark.LoadSparkFunc;
+import org.apache.spark.SparkContext;
+import org.apache.spark.rdd.RDD;
+
+import scala.Function1;
+import scala.Tuple2;
+import scala.runtime.AbstractFunction1;
 
 /**
  * A load function that parses a line of input into fields using a character delimiter.
@@ -125,7 +137,11 @@ import org.apache.pig.parser.ParserException;
  */
 @SuppressWarnings("unchecked")
 public class PigStorage extends FileInputLoadFunc implements StoreFuncInterface,
-LoadPushDown, LoadMetadata, StoreMetadata {
+LoadPushDown, LoadMetadata, StoreMetadata, LoadSparkFunc {
+	
+	//Map Function for SparkRDD
+	private static final ToTupleFunction TO_TUPLE_FUNCTION = new ToTupleFunction();
+	
     protected RecordReader in = null;
     protected RecordWriter writer = null;
     protected final Log mLog = LogFactory.getLog(getClass());
@@ -552,4 +568,34 @@ LoadPushDown, LoadMetadata, StoreMetadata {
             Job job) throws IOException {
 
     }
+
+	/*
+	 * @see
+	 * org.apache.pig.spark.LoadSparkFunc#getRDDfromContext(org.apache.spark
+	 * .SparkContext) This function is implemented to support pig to read data
+	 * from spark context This is a suggestion for how to implement LoadFunc for
+	 * Spork
+	 */
+	@Override
+	public RDD<Tuple> getRDDfromContext(SparkContext sc, String path,
+			JobConf conf) {
+		RDD<Tuple2<Text, Tuple>> hadoopRDD = sc.newAPIHadoopFile(path,
+				PigInputFormat.class, Text.class, Tuple.class, conf);
+
+		return hadoopRDD.map(TO_TUPLE_FUNCTION,
+				SparkUtil.getManifest(Tuple.class));
+	}
+	
+	/*
+	 * Map Function for PigInputFormat
+	 */
+	private static class ToTupleFunction extends
+			AbstractFunction1<Tuple2<Text, Tuple>, Tuple> implements
+			Function1<Tuple2<Text, Tuple>, Tuple>, Serializable {
+
+		@Override
+		public Tuple apply(Tuple2<Text, Tuple> v1) {
+			return v1._2();
+		}
+	}
 }

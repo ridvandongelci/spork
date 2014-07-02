@@ -143,7 +143,7 @@ public class SparkLauncher extends Launcher {
             if(pigJar == null) {
                 pigJar = "build/pig-0.12.0-SNAPSHOT-withouthadoop.jar";
             }
-            String[] sparkJars = sparkJarsSetting == null ? new String[]{} : sparkJarsSetting.split(",");
+            String[] sparkJars = sparkJarsSetting == null ? new String[]{} : sparkJarsSetting.split(":");
             
             // TODO: Don't hardcode this JAR
             List<String> jars = Lists.asList(pigJar, sparkJars);

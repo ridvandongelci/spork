@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
@@ -13,16 +15,20 @@ import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigInputForm
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.PhysicalOperator;
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.plans.PhysicalPlan;
 import org.apache.pig.backend.hadoop.executionengine.physicalLayer.relationalOperators.POLoad;
+import org.apache.pig.backend.hadoop.executionengine.spark.SparkLauncher;
 import org.apache.pig.backend.hadoop.executionengine.spark.SparkUtil;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.impl.PigContext;
 import org.apache.pig.impl.io.FileSpec;
+import org.apache.pig.impl.logicalLayer.validators.TypeCheckerException;
 import org.apache.pig.impl.plan.OperatorKey;
 import org.apache.pig.impl.util.ObjectSerializer;
+import org.apache.pig.spark.LoadSparkFunc;
 
 import scala.Function1;
 import scala.Tuple2;
 import scala.runtime.AbstractFunction1;
+
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.SparkContext;
 
@@ -38,7 +44,7 @@ import com.google.common.collect.Lists;
 @SuppressWarnings({ "serial"})
 public class LoadConverter implements POConverter<Tuple, Tuple, POLoad> {
 
-    private static final ToTupleFunction TO_TUPLE_FUNCTION = new ToTupleFunction();
+	private static final Log LOG = LogFactory.getLog(LoadConverter.class);
 
     private PigContext pigContext;
     private PhysicalPlan physicalPlan;
@@ -52,30 +58,33 @@ public class LoadConverter implements POConverter<Tuple, Tuple, POLoad> {
 
     @Override
     public RDD<Tuple> convert(List<RDD<Tuple>> predecessorRdds, POLoad poLoad) throws IOException {
-//        if (predecessors.size()!=0) {
-//            throw new RuntimeException("Should not have predecessors for Load. Got : "+predecessors);
-//        }
+        if (predecessorRdds.size()!=0) {
+            throw new RuntimeException("Should not have predecessors for Load. Got : "+predecessorRdds);
+        }
 
         JobConf loadJobConf = SparkUtil.newJobConf(pigContext);
         configureLoader(physicalPlan, poLoad, loadJobConf);
-
-        // don't know why but just doing this cast for now
-        RDD<Tuple2<Text, Tuple>> hadoopRDD = sparkContext.newAPIHadoopFile(
-                poLoad.getLFile().getFileName(), PigInputFormat.class,
-                Text.class, Tuple.class, loadJobConf);
-
-        // map to get just RDD<Tuple>
-        return hadoopRDD.map(TO_TUPLE_FUNCTION, SparkUtil.getManifest(Tuple.class));
-    }
-
-    private static class ToTupleFunction extends AbstractFunction1<Tuple2<Text, Tuple>, Tuple>
-            implements Function1<Tuple2<Text, Tuple>, Tuple>, Serializable {
-
-        @Override
-        public Tuple apply(Tuple2<Text, Tuple> v1) {
-            return v1._2();
+        LoadFunc loadFunc = poLoad.getLoadFunc();
+        if(loadFunc instanceof LoadSparkFunc)
+        {
+        	LOG.info("!!!!!!!!!!  LoadSparkFunc  !!!!!!!!!!!!");
+        	LoadSparkFunc loadSparkFunc = (LoadSparkFunc) loadFunc;
+        	return loadSparkFunc.getRDDfromContext(sparkContext, poLoad.getLFile().getFileName(), loadJobConf);
         }
+        else
+        {
+        	throw new IOException("LoadFunc should be an instance of LoadSparkFunc");
+        }
+//        // don't know why but just doing this cast for now
+//        RDD<Tuple2<Text, Tuple>> hadoopRDD = sparkContext.newAPIHadoopFile(
+//                poLoad.getLFile().getFileName(), PigInputFormat.class,
+//                Text.class, Tuple.class, loadJobConf);
+//
+//        // map to get just RDD<Tuple>
+//        return hadoopRDD.map(TO_TUPLE_FUNCTION, SparkUtil.getManifest(Tuple.class));
     }
+
+   
 
     /**
      * stolen from JobControlCompiler

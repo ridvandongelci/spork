@@ -63,11 +63,13 @@ export PIG_HOME=`dirname "$this"`
 export PIG_CLASSPATH=pig-withouthadoop.jar:lib/spark/mesos-0.9.0.jar:build/ivy/lib/Pig/*:$HADOOP_CONF_DIR
 
 if [ -z "$PIG_HOME" ]; then
-    echo "You need to set PIG_HOME"
+    echo "PIG_HOME $(pwd)"
+    export PIG_HOME=$(pwd)
     exit 1
 fi
-export PIG_HOME=$(pwd)
+
 export PIG_CLASSPATH=$PIG_HOME/build/ivy/lib/Pig/netty-3.6.6.Final.jar:$PIG_HOME/pig-withouthadoop.jar:$PIG_HOME/lib/spark/mesos-0.9.0.jar:$HADOOP_CONF_DIR:$PIG_HOME/conf:$SPARK_HOME/assembly/target/scala-2.10/spark-assembly-1.0.0-hadoop2.2.0.jar
+export PIG_CLASSPATH=$PIG_CLASSPATH:$PIG_HOME/build/ivy/lib/Pig/jython-standalone-2.5.3.jar
 export SPARK_JARS="$PIG_HOME/pig.jar"
 export SPARK_PIG_JAR=$PIG_HOME/pig.jar
 
@@ -82,4 +84,4 @@ export SPARK_WORKER_MEMORY=512m
 export SPARK_MEM=512m
 export SPARK_WORKER_INSTANCES=1
 
-bin/pig -x spark "$@"
+${PIG_HOME}/bin/pig -x spark "$@"
