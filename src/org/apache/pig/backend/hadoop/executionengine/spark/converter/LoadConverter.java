@@ -73,7 +73,7 @@ public class LoadConverter implements POConverter<Tuple, Tuple, POLoad> {
         }
         else
         {
-        	throw new IOException("LoadFunc should be an instance of LoadSparkFunc");
+        	throw new IOException("LoadFunc should be an instance of LoadSparkFunc- Found: "+loadFunc.toString());
         }
 //        // don't know why but just doing this cast for now
 //        RDD<Tuple2<Text, Tuple>> hadoopRDD = sparkContext.newAPIHadoopFile(

@@ -62,6 +62,7 @@ import org.apache.pig.StoreFuncInterface;
 import org.apache.pig.StoreMetadata;
 import org.apache.pig.backend.executionengine.ExecException;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigInputFormat;
+import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigSplit;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigTextInputFormat;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigTextOutputFormat;
@@ -78,7 +79,9 @@ import org.apache.pig.impl.util.UDFContext;
 import org.apache.pig.impl.util.Utils;
 import org.apache.pig.parser.ParserException;
 import org.apache.pig.spark.LoadSparkFunc;
+import org.apache.pig.spark.StoreSparkFunc;
 import org.apache.spark.SparkContext;
+import org.apache.spark.rdd.PairRDDFunctions;
 import org.apache.spark.rdd.RDD;
 
 import scala.Function1;
@@ -137,10 +140,11 @@ import scala.runtime.AbstractFunction1;
  */
 @SuppressWarnings("unchecked")
 public class PigStorage extends FileInputLoadFunc implements StoreFuncInterface,
-LoadPushDown, LoadMetadata, StoreMetadata, LoadSparkFunc {
+LoadPushDown, LoadMetadata, StoreMetadata, LoadSparkFunc, StoreSparkFunc {
 	
 	//Map Function for SparkRDD
 	private static final ToTupleFunction TO_TUPLE_FUNCTION = new ToTupleFunction();
+	private static final FromTupleFunction FROM_TUPLE_FUNCTION = new FromTupleFunction();
 	
     protected RecordReader in = null;
     protected RecordWriter writer = null;
@@ -598,4 +602,25 @@ LoadPushDown, LoadMetadata, StoreMetadata, LoadSparkFunc {
 			return v1._2();
 		}
 	}
+	
+	@Override
+	public void putRDD(RDD<Tuple> rdd, String path, JobConf conf) {
+		RDD<Tuple2<Text, Tuple>> rddPairs = rdd.map(FROM_TUPLE_FUNCTION, SparkUtil.<Text, Tuple>getTuple2Manifest());
+        PairRDDFunctions<Text, Tuple> pairRDDFunctions = new PairRDDFunctions<Text, Tuple>(rddPairs,
+                SparkUtil.getManifest(Text.class), SparkUtil.getManifest(Tuple.class),null);
+        pairRDDFunctions.saveAsNewAPIHadoopFile(path,Text.class, Tuple.class, PigOutputFormat.class, conf);
+	}
+	
+	private static class FromTupleFunction extends
+			AbstractFunction1<Tuple, Tuple2<Text, Tuple>> implements
+			Serializable {
+
+		private static Text EMPTY_TEXT = new Text();
+
+		public Tuple2<Text, Tuple> apply(Tuple v1) {
+			return new Tuple2<Text, Tuple>(EMPTY_TEXT, v1);
+		}
+	}
+
+
 }
