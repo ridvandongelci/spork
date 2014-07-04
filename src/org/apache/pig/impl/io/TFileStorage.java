@@ -237,7 +237,7 @@ public class TFileStorage extends FileInputLoadFunc implements
 	 */
 	@Override
 	public RDD<Tuple> getRDDfromContext(SparkContext sc, String path,
-			JobConf conf) {
+			JobConf conf) throws IOException {
 		mLog.info("RDD get path: "+path);
 		RDD<Tuple2<Text, Tuple>> hadoopRDD = sc.newAPIHadoopFile(path,
 				TFileInputFormat.class, Text.class, Tuple.class, conf);
@@ -260,7 +260,7 @@ public class TFileStorage extends FileInputLoadFunc implements
 	}
 	
 	@Override
-	public void putRDD(RDD<Tuple> rdd, String path, JobConf conf) {
+	public void putRDD(RDD<Tuple> rdd, String path, JobConf conf) throws IOException {
 		mLog.info("RDD put path: "+path);
 		RDD<Tuple2<Text, Tuple>> rddPairs = rdd.map(FROM_TUPLE_FUNCTION, SparkUtil.<Text, Tuple>getTuple2Manifest());
         PairRDDFunctions<Text, Tuple> pairRDDFunctions = new PairRDDFunctions<Text, Tuple>(rddPairs,

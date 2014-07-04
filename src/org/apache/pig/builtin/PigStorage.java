@@ -582,7 +582,7 @@ LoadPushDown, LoadMetadata, StoreMetadata, LoadSparkFunc, StoreSparkFunc {
 	 */
 	@Override
 	public RDD<Tuple> getRDDfromContext(SparkContext sc, String path,
-			JobConf conf) {
+			JobConf conf) throws IOException {
 		RDD<Tuple2<Text, Tuple>> hadoopRDD = sc.newAPIHadoopFile(path,
 				PigInputFormat.class, Text.class, Tuple.class, conf);
 
@@ -604,7 +604,7 @@ LoadPushDown, LoadMetadata, StoreMetadata, LoadSparkFunc, StoreSparkFunc {
 	}
 	
 	@Override
-	public void putRDD(RDD<Tuple> rdd, String path, JobConf conf) {
+	public void putRDD(RDD<Tuple> rdd, String path, JobConf conf) throws IOException {
 		RDD<Tuple2<Text, Tuple>> rddPairs = rdd.map(FROM_TUPLE_FUNCTION, SparkUtil.<Text, Tuple>getTuple2Manifest());
         PairRDDFunctions<Text, Tuple> pairRDDFunctions = new PairRDDFunctions<Text, Tuple>(rddPairs,
                 SparkUtil.getManifest(Text.class), SparkUtil.getManifest(Tuple.class),null);
