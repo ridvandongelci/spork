@@ -15,14 +15,27 @@ http://docs.sigmoidanalytics.com/index.php/Installing_Spark_andSetting_Up_Your_C
 
 
 Make sure you call 
+sbt/sbt update
 sbt/sbt assembly 
 sbt/sbt publish-local
+
+NOTE: If any you encounter
+[warn] 	::::::::::::::::::::::::::::::::::::::::::::::
+[warn] 	::              FAILED DOWNLOADS            ::
+[warn] 	:: ^ see resolution messages for details  ^ ::
+[warn] 	::::::::::::::::::::::::::::::::::::::::::::::
+[warn] 	:: org.mortbay.jetty#jetty;6.1.26!jetty.zip
+[warn] 	::::::::::::::::::::::::::::::::::::::::::::::
+sbt.ResolveException: download failed: org.mortbay.jetty#jetty;6.1.26!jetty.zip
+
+use the following command
+cp ~/.m2/repository/org/mortbay/jetty/jetty/6.1.26/jetty-6.1.26.jar ~/.m2/repository/org/mortbay/jetty/jetty/6.1.26/jetty-6.1.26.zip
+
 
 To run pig in Spark mode, you need to set a few env variables:
 SPARK_MASTER (local by default)
 SPARK_MAX_CPUS (32 by default)
 HADOOP_CONF_DIR
-
 
 and start pig in Spark mode: 'pig -x spark myscript.pig'
 

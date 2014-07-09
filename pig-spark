@@ -28,7 +28,7 @@ fi
 #export SPARK_JAVA_OPTS=" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heap.dump"
 #export SPARK_JAVA_OPTS+=" -Xdebug -Xrunjdwp:transport=dt_socket,address=12345,server=y,suspend=y"
 # Settings to work with YARN, spark jar compiled with hadoop 2
-export SPARK_MASTER=spark://ws-37:7077
+export SPARK_MASTER=yarn-client
 
 #if want to run on spark master
 #export SPARK_MASTER=spark://-------:7077
