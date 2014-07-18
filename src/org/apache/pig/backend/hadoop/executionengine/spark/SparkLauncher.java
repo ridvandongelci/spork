@@ -57,6 +57,7 @@ import org.apache.pig.tools.pigstats.SparkStats;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.scheduler.JobLogger;
 import org.apache.spark.scheduler.StatsReportListener;
+import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
 
@@ -96,8 +97,8 @@ public class SparkLauncher extends Launcher {
 
 /////////
 
-        System.setProperty("spark.default.parallelism", ""+pigContext.defaultParallel);
-        startSparkIfNeeded();
+        
+        startSparkIfNeeded(pigContext);
         
 
         // initialize the supported converters
@@ -130,7 +131,7 @@ public class SparkLauncher extends Launcher {
         return stats;
     }
 
-    private static void startSparkIfNeeded() throws PigException {
+    private static void startSparkIfNeeded(PigContext pigContext) throws PigException {
         if (sparkContext == null) {
             String master = System.getenv("SPARK_MASTER");
             if (master == null) {
@@ -179,10 +180,15 @@ public class SparkLauncher extends Launcher {
 //            	System.setProperty("spark.cores.max", "1" );
 //            }
             
-            setPropertyFromEnv("spark.cores.max", "SPARK_MAX_CPUS", "1");
-            setPropertyFromEnv("spark.executor.memory", "SPARK_EXECUTOR_MEMORY", "1g");
+      
             
-            JavaSparkContext javaContext = new JavaSparkContext(master, "Spork", sparkHome, jars.toArray(new String[jars.size()]));
+            SparkConf conf = new SparkConf().setMaster(master).setAppName("Spork")
+            	.setSparkHome(sparkHome).setJars(jars.toArray(new String[jars.size()]))
+            	.set("spark.cores.max", getFromEnv("SPARK_MAX_CPUS", "1"))
+            	.set("spark.executor.memory", getFromEnv( "SPARK_EXECUTOR_MEMORY", "1g"))
+            	.set("spark.default.parallelism", pigContext.defaultParallel > 0 ? (""+pigContext.defaultParallel) : "1");
+            
+            JavaSparkContext javaContext = new JavaSparkContext(conf);
             sparkContext = javaContext.sc();
             sparkContext.addSparkListener(new StatsReportListener());
             sparkContext.addSparkListener(new JobLogger());
@@ -233,18 +239,19 @@ public class SparkLauncher extends Launcher {
         rdds.put(physicalOperator.getOperatorKey(), nextRDD);
     }
 
-    public static void setPropertyFromEnv(String property, String envvar,String def)
+    public static String getFromEnv(String envvar,String def)
     {
     	try
         {
         	String executorMem = System.getenv(envvar);
-        	System.setProperty(property, executorMem != null? executorMem : def );
+        	return (executorMem != null? executorMem : def );
         }
         catch(Exception e)
         {
-        	System.setProperty(property, def);
+        	return def;
         }
     }
+    
     @Override
     public void explain(PhysicalPlan pp, PigContext pc, PrintStream ps, String format, boolean verbose)
             throws IOException { }
