@@ -101,11 +101,11 @@ public class GlobalRearrangeConverter implements POConverter<Tuple, Tuple, POGlo
         @Override
         public Tuple apply(Tuple2<Object, scala.collection.Iterable<Tuple>> v1) {
             try {
-                LOG.debug("GroupTupleFunction in "+v1);
+                //LOG.debug("GroupTupleFunction in "+v1);
                 Tuple tuple = tf.newTuple(2);
                 tuple.set(0, v1._1()); // the (index, key) tuple
                 tuple.set(1, JavaConversions.asJavaCollection(v1._2()).iterator()); // the Seq<Tuple> aka bag of values
-                LOG.debug("GroupTupleFunction out "+tuple);
+                //LOG.debug("GroupTupleFunction out "+tuple);
                 return tuple;
             } catch (ExecException e) {
                 throw new RuntimeException(e);
@@ -137,7 +137,7 @@ public class GlobalRearrangeConverter implements POConverter<Tuple, Tuple, POGlo
         @Override
         public Tuple apply(Tuple2<Object, Seq<Seq<Tuple>>> input) {
             try {
-                LOG.debug("ToGroupKeyValueFunction2 in "+input);
+                //LOG.debug("ToGroupKeyValueFunction2 in "+input);
                 final Object key = input._1();
                 Seq<Seq<Tuple>> bags = input._2();
                 Iterable<Seq<Tuple>> bagsList = JavaConversions.asJavaIterable(bags);
@@ -165,7 +165,7 @@ public class GlobalRearrangeConverter implements POConverter<Tuple, Tuple, POGlo
                 Tuple out = tf.newTuple(2);
                 out.set(0, key);
                 out.set(1, new IteratorUnion<Tuple>(tupleIterators.iterator()));
-                LOG.debug("ToGroupKeyValueFunction2 out "+out);
+                //LOG.debug("ToGroupKeyValueFunction2 out "+out);
                 return out;
             } catch(Exception e) {
                 throw new RuntimeException(e);
