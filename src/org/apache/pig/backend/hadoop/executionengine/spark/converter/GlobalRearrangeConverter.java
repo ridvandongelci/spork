@@ -85,10 +85,10 @@ public class GlobalRearrangeConverter implements POConverter<Tuple, Tuple, POGlo
         @Override
         public Object apply(Tuple t) {
             try {
-                LOG.debug("GetKeyFunction in "+t);
+                //LOG.debug("GetKeyFunction in "+t);
                 // see PigGenericMapReduce For the key
                 Object key = t.get(1);
-                LOG.debug("GetKeyFunction out "+key);
+                //LOG.debug("GetKeyFunction out "+key);
                 return key;
             } catch (ExecException e) {
                 throw new RuntimeException(e);
@@ -119,12 +119,12 @@ public class GlobalRearrangeConverter implements POConverter<Tuple, Tuple, POGlo
         public Tuple2<Object, Tuple> apply(Tuple t) {
             try {
                 // (index, key, value)
-                LOG.debug("ToKeyValueFunction in "+t);
+                //LOG.debug("ToKeyValueFunction in "+t);
                 Object key = t.get(1);
                 Tuple value = (Tuple)t.get(2); //value
                 // (key, value)
                 Tuple2<Object, Tuple> out = new Tuple2<Object, Tuple>(key, value);
-                LOG.debug("ToKeyValueFunction out "+out);
+                //LOG.debug("ToKeyValueFunction out "+out);
                 return out;
             } catch (ExecException e) {
                 throw new RuntimeException(e);
